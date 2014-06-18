@@ -29,7 +29,7 @@ public JPXTrackSeg(TrackT l_Trackseg) {
 		
     }
     setNothWestSouthEast();
- //   System.out.println("sud est : " + this.ptSouthEast.lon);
+ //   System.out.println("sud est : " + this.ptSouthEast.getDouble("lon",0.0));
 	  
 }
 
@@ -69,11 +69,11 @@ public JPXTrackSeg(TrackT l_Trackseg) {
   {
 	  double l_sud,l_nord,l_est,l_ouest;
 	  Collections.sort(this);
-	  l_sud=this.firstElement().lat;
-	  l_nord=this.lastElement().lat;
+	  l_sud=this.firstElement().getDouble("lat",0.0);
+	  l_nord=this.lastElement().getDouble("lat",0.0);
 	  Collections.sort(this,JPXPoint.LONGITUDE_ORDER);
-	  l_ouest=this.firstElement().lon;
-	  l_est=this.lastElement().lon;
+	  l_ouest=this.firstElement().getDouble("lon",0.0);
+	  l_est=this.lastElement().getDouble("lon",0.0);
 	  ptNorthWest = new JPXPoint( l_nord,l_ouest,0.0)  ;
 	  ptSouthEast = new JPXPoint( l_sud,l_est,0.0)  ;
 	  Collections.sort(this,JPXPoint.POSITION_ORDER);

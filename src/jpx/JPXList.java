@@ -38,9 +38,9 @@ public class JPXList {
      	      System.out.println( gpx.Name + " : "+ gpx.IdLapSeg);
     	    
 		          JPXPoint pt2 = gpx.ptNorthWest;
-		          System.out.println("limite Nord WEst (" + pt2.lat + "," + pt2.lon + ")");
+		          System.out.println("limite Nord WEst (" + pt2.getDouble("lat",0.0) + "," + pt2.getDouble("lon",0.0) + ")");
 		          pt2 = gpx.ptSouthEast;
-		          System.out.println("limite Sud Est (" + pt2.lat + "," + pt2.lon + ")");
+		          System.out.println("limite Sud Est (" + pt2.getDouble("lat",0.0) + "," + pt2.getDouble("lon",0.0) + ")");
 		    
            }
            

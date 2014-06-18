@@ -130,13 +130,13 @@ private def trackPoints(e_activity: JPX) = {
   }
     
   private def xForTrackPoint(activity: JPX, width: Int)(trackPoint: JPXPoint): Double = {
-    (width - LeftOffset - RightOffset) * (trackPoint.lon/ 30000.0) + LeftOffset
+    (width - LeftOffset - RightOffset) * (trackPoint.getDouble("lon",0.0) / 30000.0) + LeftOffset
   }
    
   private def yForTrackPoint(height: Int, minAltitude: Double, 
                              altitudeRange: Double)
   							(trackPoint: JPXPoint): Double = {
-    val relativeAltitude= (trackPoint.ele - minAltitude) / altitudeRange 
+    val relativeAltitude= (trackPoint.getDouble("ele",0.0)  - minAltitude) / altitudeRange 
     height - relativeAltitude * (height - BottomOffset - TopOffset) - BottomOffset
   }
 }

@@ -41,14 +41,24 @@ public class JPXPoint extends JSONObject implements Comparable<JPXPoint> {
 	                                        new Comparator<JPXPoint>() {
 	            @Override
 				public int compare(JPXPoint e1, JPXPoint e2) {
-	                if (e1.lon<e2.lon) 
+	                if (e1.getDouble("lon",0.)<e2.getDouble("lon",0.)) 
 	                    return 0;
 	                    else 
 	                  	  return 1;
 	            }
 	   
   };
-  public static final Comparator<JPXPoint> POSITION_ORDER = 
+  static final Comparator<JPXPoint> LATITUDE_ORDER = 
+          new Comparator<JPXPoint>() {
+@Override
+public int compare(JPXPoint e1, JPXPoint e2) {
+if (e1.getDouble("lat",0.)<e2.getDouble("lat",0.)) 
+return 0;
+else 
+return 1;
+}
+
+};public static final Comparator<JPXPoint> POSITION_ORDER = 
           new Comparator<JPXPoint>() {
 @Override
 public int compare(JPXPoint e1, JPXPoint e2) {
@@ -62,9 +72,6 @@ return 1;
 
 private static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ssZ");
 private static final SimpleDateFormat msdateFormat = new SimpleDateFormat("yyyy-MM-dd'T'hh:mm:ss.SSS'Z'z"); // allow millis too
-  public double ele;
-  public double lat;
-  public double lon;
   public double distance;
   public int idf;
 
@@ -72,16 +79,11 @@ private static final SimpleDateFormat msdateFormat = new SimpleDateFormat("yyyy-
   //private SimpleTimeZone pdt = new SimpleTimeZone(-0 * 60 * 60 * 1000, "GMT");
 
   public JPXPoint() {
-    this.lat = 0.0;
-    this.lon = 0.0;
-    this.ele = 0.0;
     this.distance =0.0;
     this.idf = 0;
    // IdTime = new GregorianCalendar();
     IdTime.setTime( new Date());
-    this.setDouble("lat", 0.0);
-    this.setDouble("lon",0.0);
-  }
+      }
   public JPXPoint(double lat, double lon, double ele) {
 	  this(lat, lon, ele, null,0.0);
   }
@@ -93,9 +95,6 @@ private static final SimpleDateFormat msdateFormat = new SimpleDateFormat("yyyy-
 	    this.setDouble("lat", lat2);
 	    this.setDouble("lon",lon2);
 	 	
-	  this.lat = lat2;
-	    this.lon = lon2;
-	    this.ele = ele2;
 	    this.distance= d;
 	    if (time2 != null){
 	    this.IdTime = time2;
@@ -109,11 +108,9 @@ public JPXPoint(TrackpointT Pt){
 	  
     this.setDouble("lat", Pt.getPosition().getLatitudeDegrees());
     this.setDouble("lon",Pt.getPosition().getLongitudeDegrees());
-	  this.lat=Pt.getPosition().getLatitudeDegrees();
-	  this.lon=Pt.getPosition().getLongitudeDegrees();
 	 // System.out.println("lon : " + lon);
 	  this.distance = Pt.getDistanceMeters();	  
-	  this.ele=Pt.getAltitudeMeters();
+	  this.setDouble("ele",Pt.getAltitudeMeters());
 	//  Date l_date;
 	//  l_date = new Date();
 	  XMLGregorianCalendar l_t= Pt.getTime();
@@ -131,39 +128,39 @@ understands 2 time formats: ISO 8601 with and without milliseconds */
 
     try {
       String sLat = trkpt.getString("lat");
-      this.lat = Double.parseDouble(sLat);
+      this.setDouble("lat",Double.parseDouble(sLat));
     }
     catch (Exception e) {
       if (JPX.debug) {
         e.printStackTrace();
         System.err.println("error parsing lat in: " + trkpt);
       }
-      this.lat = 0.0;
+
     }
     try {
       String sLon = trkpt.getString("lon");
-      this.lon = Double.parseDouble(sLon);
+      this.setDouble("lon", Double.parseDouble(sLon));
     }
     catch (Exception e) {
       if (JPX.debug) {
         e.printStackTrace();
         System.err.println("error parsing lon in: " + trkpt);
       }
-      this.lon = 0.0;
+     
     }
 
     for (XML element : trkpt.getChildren()) {
       if (element.getName().equals("ele")) {
         try {
           String sEle = element.getContent();
-          this.ele = Double.parseDouble(sEle);
+          this.setDouble("ele" , Double.parseDouble(sEle));
         }
         catch (Exception e) {
           if (JPX.debug) {
             e.printStackTrace();
             System.err.println("error parsing ele in: " + trkpt);
           }
-          this.ele = 0.0;
+         
         }
       }
       else if (element.getName().equals("time")) {
@@ -201,13 +198,11 @@ understands 2 time formats: ISO 8601 with and without milliseconds */
         }
       }
     }
-    this.setDouble("lat", this.lat);
-    this.setDouble("lon",this.lon);
-
+    
   }
   @Override
 public int compareTo(JPXPoint n) {
-      if (n.lat<this.lat) 
+      if (n.getDouble("lat", 0.0)<this.getDouble("lat",0.0)) 
       return 1;
       else 
     	  return 0;
@@ -215,7 +210,7 @@ public int compareTo(JPXPoint n) {
 
   public boolean IsEqual(JPXPoint n) {
       double d;
-	  d= Math.abs(n.lat-this.lat) +Math.abs(n.lon-this.lon);
+	  d= Math.abs(n.getDouble("lat", 0.0)-this.getDouble("lat", 0.0)) +Math.abs(n.getDouble("lon", 0.0)-this.getDouble("lon", 0.0));
       if (d< 1e-7)
     	  return true;
       else 

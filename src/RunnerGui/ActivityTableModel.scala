@@ -32,8 +32,8 @@ class ActivityTableModel @Inject() (private val applicationState:ApplicationStat
           case "Id" => 
           //  val fromStart = new Duration(activity.startTime, trackPoint.time)
             "" + trackPoint.idf
-          case "Lat" => "" + (trackPoint.lat)
-          case "Lon" => " " + trackPoint.lon
+          case "Lat" => "" + (trackPoint.getDouble("lat") )
+          case "Lon" => " " + trackPoint.getDouble("lat") 
           case "Time" => trackPoint.IdTime.getTime().toLocaleString()
           case "Heart Rate" => "" + "0.0"
           case "Speed" => "0.0"

@@ -91,9 +91,9 @@ public class JPX {
 	   	     	      // System.out.println( gpx.Name + " : "+ gpx.IdLapSeg);
 	   	    	    
 	   			         // JPXPoint pt2 = ;
-	   			       //   System.out.println("limite Nord WEst (" + pt2.lat + "," + pt2.lon + ")");
+	   			       //   System.out.println("limite Nord WEst (" + pt2.getDouble("lat",0.0) + "," + pt2.getDouble("lon",0.0) + ")");
 	   			       //JPXPoint pt3 = gpx.ptSouthEast;
-	   			         // System.out.println("limite Sud Est (" + pt2.lat + "," + pt2.lon + ")");
+	   			         // System.out.println("limite Sud Est (" + pt2.getDouble("lat",0.0) + "," + pt2.getDouble("lon",0.0) + ")");
 	   			    if (
 	   			    		gpx.ptNorthWest.IsEqual(l_track.getNothWest()) && 
 	   			    		gpx.ptSouthEast.IsEqual(l_track.getSouthEast())
@@ -162,81 +162,16 @@ public class JPX {
 	    try {
 	    if (url.contains(".gpx"))
 	    {
-	      XML xmldata = parent.loadXML(url);
-	      for (XML xmlthing : xmldata.getChildren()) {
-	        if (xmlthing.getName().equals("trk")) {
-	          addTrack(new JPXTrack(xmlthing));
-	        }
-	        else if (xmlthing.getName().equals("wpt")) {
-	          addWayPoint(new GPXWayPoint(xmlthing));
-	        }
-	        else if (xmlthing.getName().equals("metadata")) {
-		          for (XML element : xmlthing.getChildren()) {
-		        	  if (element.getName().equals("time")) {
-		        	        String t = element.getContent();
-		        	        Date l_date;
-		        	        try {
-		        	          if (t.length() == 20) {
-		        	        	  l_date = dateFormat.parse(t);
-		        	          }
-		        	          else if (t.length() == 24) {
-		        	        	  String l_new= t+ "GMT";
-		        	        	  l_date = msdateFormat.parse(l_new);
-		        	        	//  System.out.println(l_date.toGMTString() + " - " + l_date.toLocaleString());
-		        	        	 
-		        	          }
-		        	          else {
-		        	        	  l_date = new Date(Long.parseLong(t)); // try for unix time
-		        	        	 
-		        	          }
-		        	          this.StartTime.setTime(l_date);
-		        	          this.EndTime.setTime(l_date);
-		        	          this.hasTime=true;
-		        	        }
-		        	        catch(Exception e) {
-		        	          if (JPX.debug) {
-		        	            e.printStackTrace();
-		        	            System.err.println("error parsing time in: " + element);
-		        	          }
-		        	          
-		        	        }
-		        	      }
-		        }
-	        }
-	      }
-	      }
-	      else if (url.contains(".tcx"))
+	     parseGPX(url);
+	    }
+	    else if (url.contains(".tcx"))
 	      {
-	    	  try{
-	    		// create a JAXBContext capable of handling classes generated into
-	    	       // the primer.po package
-	    	       JAXBContext jc = JAXBContext.newInstance( "tcx" );
-	    	       
-	    	       // create an Unmarshaller
-	    	       Unmarshaller u = jc.createUnmarshaller();
-	            // unmarshal a po instance document into a tree of Java content
-		            // objects composed of classes from the primer.po package.
-		           JAXBElement l_poe = 
-		                (JAXBElement)u.unmarshal( new FileInputStream(url ) );
-		            TrainingCenterDatabaseT po = (TrainingCenterDatabaseT)l_poe.getValue();
-
-		            // 
-		            ActivityListT list_act = po.getActivities();
-		            ActivityT acti=list_act.getActivity().get(0);
-		            this.StartTime=acti.getId().toGregorianCalendar();
-		            this.hasTime=true;
-		   	        getDataFromActi(acti);
-		   	        this.EndTime=this.StartTime;
-				     
-		   	        
-				  } catch( IOException ioe ) {
-			            ioe.printStackTrace();
-			        }
-	    	  		catch( JAXBException je ) {
-			            je.printStackTrace();
-	    	  
-	    	  		}
-	      }
+             parseTCX(url);
+          }
+	    else if (url.contains(".jpx"))
+	    {
+	    parseJPX(url);
+	    }
 	    	  
 	      /* recherhce min max lat et lon */
 	      SetBounds();
@@ -245,6 +180,100 @@ public class JPX {
 	      e.printStackTrace();
 	    }
 	  }
+	  public void parseJPX(String url) {
+		    try {
+		    		    }
+		    catch(Exception e) {
+		      e.printStackTrace();
+		    }
+		  }
+	  public void parseGPX(String url) {
+		    try {
+		      XML xmldata = parent.loadXML(url);
+		      for (XML xmlthing : xmldata.getChildren()) {
+		        if (xmlthing.getName().equals("trk")) {
+		          addTrack(new JPXTrack(xmlthing));
+		        }
+		        else if (xmlthing.getName().equals("wpt")) {
+		          addWayPoint(new GPXWayPoint(xmlthing));
+		        }
+		        else if (xmlthing.getName().equals("metadata")) {
+			          for (XML element : xmlthing.getChildren()) {
+			        	  if (element.getName().equals("time")) {
+			        	        String t = element.getContent();
+			        	        Date l_date;
+			        	        try {
+			        	          if (t.length() == 20) {
+			        	        	  l_date = dateFormat.parse(t);
+			        	          }
+			        	          else if (t.length() == 24) {
+			        	        	  String l_new= t+ "GMT";
+			        	        	  l_date = msdateFormat.parse(l_new);
+			        	        	//  System.out.println(l_date.toGMTString() + " - " + l_date.toLocaleString());
+			        	        	 
+			        	          }
+			        	          else {
+			        	        	  l_date = new Date(Long.parseLong(t)); // try for unix time
+			        	        	 
+			        	          }
+			        	          this.StartTime.setTime(l_date);
+			        	          this.EndTime.setTime(l_date);
+			        	          this.hasTime=true;
+			        	        }
+			        	        catch(Exception e) {
+			        	          if (JPX.debug) {
+			        	            e.printStackTrace();
+			        	            System.err.println("error parsing time in: " + element);
+			        	          }
+			        	          
+			        	        }
+			        	      }
+			        }
+		        }
+		      }
+				    	  
+		    }
+		    catch(Exception e) {
+		      e.printStackTrace();
+		    }
+		  }
+	  public void parseTCX(String url) {
+		    try {
+		    
+		    	  try{
+		    		// create a JAXBContext capable of handling classes generated into
+		    	       // the primer.po package
+		    	       JAXBContext jc = JAXBContext.newInstance( "tcx" );
+		    	       
+		    	       // create an Unmarshaller
+		    	       Unmarshaller u = jc.createUnmarshaller();
+		            // unmarshal a po instance document into a tree of Java content
+			            // objects composed of classes from the primer.po package.
+			           JAXBElement l_poe = 
+			                (JAXBElement)u.unmarshal( new FileInputStream(url ) );
+			            TrainingCenterDatabaseT po = (TrainingCenterDatabaseT)l_poe.getValue();
+
+			            // 
+			            ActivityListT list_act = po.getActivities();
+			            ActivityT acti=list_act.getActivity().get(0);
+			            this.StartTime=acti.getId().toGregorianCalendar();
+			            this.hasTime=true;
+			   	        getDataFromActi(acti);
+			   	        this.EndTime=this.StartTime;
+					     
+			   	        
+					  } catch( IOException ioe ) {
+				            ioe.printStackTrace();
+				        }
+		    	  		catch( JAXBException je ) {
+				            je.printStackTrace();
+		    	  
+		    	  		}
+		    }
+		    catch(Exception e) {
+		      e.printStackTrace();
+		    }
+		  }
 
 	  public void removeTrack(JPXTrack trk) {
 	    tracks.remove(trk);
@@ -271,19 +300,19 @@ public class JPX {
 			          else
 			          {
 				          JPXPoint pt2 = trkseg.getNothWest();
-			       // 	  System.out.println("limite Nord WEst (" + pt2.lat + "," + pt2.lon + ")");
-			        	  if (pt2.lat >this.ptNorthWest.lat ) this.ptNorthWest.lat= pt2.lat;
-			        	  if (pt2.lon <this.ptNorthWest.lon ) this.ptNorthWest.lon= pt2.lon;
+			       // 	  System.out.println("limite Nord WEst (" + pt2.getDouble("lat",0.0) + "," + pt2.getDouble("lon",0.0) + ")");
+			        	  if (pt2.getDouble("lat",0.) >this.ptNorthWest.getDouble("lat",0.0) ) this.ptNorthWest.setDouble("lat",pt2.getDouble("lat",0.0));
+			        	  if (pt2.getDouble("lon",0.0) <this.ptNorthWest.getDouble("lon",0.0) ) this.ptNorthWest.setDouble("lon",pt2.getDouble("lon",0.0));
 			          
 			        	  pt2 = trkseg.getSouthEast();
-			        //	  System.out.println("limite Sud Est (" + pt2.lat + "," + pt2.lon + ")");
-			        	  if (pt2.lat <this.ptSouthEast.lat ) this.ptSouthEast.lat= pt2.lat;
-			        	  if (pt2.lon >this.ptSouthEast.lon ) this.ptSouthEast.lon= pt2.lon;
+			        //	  System.out.println("limite Sud Est (" + pt2.getDouble("lat",0.0) + "," + pt2.getDouble("lon",0.0) + ")");
+			        	  if (pt2.getDouble("lat",0.0) <this.ptSouthEast.getDouble("lat",0.0)  ) this.ptSouthEast.setDouble("lat",pt2.getDouble("lat",0.0));
+			        	  if (pt2.getDouble("lon",0.0) >this.ptSouthEast.getDouble("lon",0.0) ) this.ptSouthEast.setDouble("lon",pt2.getDouble("lon",0.0));
 			          }
 			        }
 		      }
-		      //   System.out.println("gpx limite Nord WEst (" + ptNorthWest.lat + "," + ptNorthWest.lon + ")");
-		     //     System.out.println("gpx limite Sud Est (" + ptSouthEast.lat + "," + ptSouthEast.lon + ")");
+		      //   System.out.println("gpx limite Nord WEst (" + ptNorthWest.getDouble("lat",0.0) + "," + ptNorthWest.getDouble("lon",0.0) + ")");
+		     //     System.out.println("gpx limite Sud Est (" + ptSouthEast.getDouble("lat",0.0) + "," + ptSouthEast.getDouble("lon",0.0) + ")");
 
 
 		    }
@@ -352,7 +381,7 @@ public class JPX {
 		          System.out.println("Segment (" + i + "," + j + ") has " + trkseg.size() + " track points");
 		         // for (int k = 0; k < trkseg.size(); k++) {
 		         //   GPXPoint pt = trkseg.getPoint(k);
-		        //    System.out.println("Point (" + pt.lat + "," + pt.lon + ")");
+		        //    System.out.println("Point (" + pt.getDouble("lat",0.0) + "," + pt.getDouble("lon",0.0) + ")");
 		       //   }
 		          JPXPoint pt2 = trkseg.getNothWest();
 		          System.out.println("PT2 : " + pt2.toString());
@@ -362,9 +391,9 @@ public class JPX {
 		          System.out.println("PT3 : " + pt3.toString());
 		          
 		          
-		          System.out.println("limite Nord WEst (" + pt2.lat + "," + pt2.lon + ")");
+		          System.out.println("limite Nord WEst (" + pt2.getDouble("lat",0.0) + "," + pt2.getDouble("lon",0.0) + ")");
 		          pt2 = trkseg.getSouthEast();
-		          System.out.println("limite Sud Est (" + pt2.lat + "," + pt2.lon + ")");
+		          System.out.println("limite Sud Est (" + pt2.getDouble("lat",0.0) + "," + pt2.getDouble("lon",0.0) + ")");
 		        }
 		      }
     	    

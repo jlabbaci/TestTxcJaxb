@@ -68,7 +68,9 @@ class ScalaMapViewer @Inject() (applicationState: ApplicationState)
     def doInBackground = {
       val wholeMap = Pair(new Coordinate(-180.0, 90.0),new Coordinate(180.0, -90.0)) 
       if (activity.isDefined) {
-        val coordinates = trackPoints(activity.get).filter(tp => (tp.lat != 0.0 && tp.lon != 0.0)).map(tp => new Coordinate(tp.lat, tp.lon))
+        val coordinates = trackPoints(activity.get).filter(
+            tp => (tp.getDouble("lat",0.0)  != 0.0 && tp.getDouble("lon",0.0)  != 0.0)).map(
+                tp => new Coordinate(tp.getDouble("lat",0.0) , tp.getDouble("lon",0.0) ))
         if (coordinates.isEmpty) wholeMap
         else {
           val bounds = boundingBox(coordinates)
@@ -120,7 +122,9 @@ class ScalaMapViewer @Inject() (applicationState: ApplicationState)
     val activity = applicationState.currentActivity.get
     val l_list_point= trackPoints(activity)
     if (l_list_point.isEmpty) return
-    val mapPoints =  l_list_point.filter(tp => (tp.lat != 0.0 && tp.lon != 0.0)).map(tp => getMapPosition(tp.lat, tp.lon, false))
+    val mapPoints =  l_list_point.filter(tp => (tp.getDouble("lat",0.0)  != 0.0 
+        && tp.getDouble("lon",0.0)  != 0.0)).map(
+            tp => getMapPosition(tp.getDouble("lat",0.0) , tp.getDouble("lon",0.0) , false))
     if (mapPoints.isEmpty) return
       
     val path = new Path2D.Double
